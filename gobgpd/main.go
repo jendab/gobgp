@@ -120,6 +120,7 @@ func main() {
 		os.Exit(0)
 	}
 
+	log.Info("JB-gobgpd started")
 	log.Info("gobgpd started")
 	bgpServer := server.NewBgpServer()
 	go bgpServer.Serve()
