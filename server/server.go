@@ -558,6 +558,7 @@ func (server *BgpServer) notifyRecvMessageWatcher(peer *Peer, timestamp time.Tim
 	if peer == nil || !server.isWatched(WATCH_EVENT_TYPE_RECV_MSG) {
 		return
 	}
+	log.Info("JB-Notify Message Watcher")
 	server.notifyMessageWatcher(peer, timestamp, msg, false)
 }
 
@@ -882,6 +883,7 @@ func (server *BgpServer) handleFSMMessage(peer *Peer, e *FsmMsg) {
 			sendFsmOutgoingMsg(peer, nil, bgp.NewBGPNotificationMessage(m.TypeCode, m.SubTypeCode, m.Data), false)
 			return
 		case *bgp.BGPMessage:
+			log.Info("JB-UPDATE Message received")
 			server.notifyRecvMessageWatcher(peer, e.timestamp, m)
 			if peer.fsm.state != bgp.BGP_FSM_ESTABLISHED || e.timestamp.Unix() < peer.fsm.pConf.Timers.State.Uptime {
 				return
