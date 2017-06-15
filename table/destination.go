@@ -262,6 +262,7 @@ func (dest *Destination) Calculate(ids []string, peerDown bool) (map[string]*Pat
 	dest.implicitWithdraw()
 	// Collect all new paths into known paths.
 	dest.knownPathList = append(dest.knownPathList, dest.newPathList...)
+	log.Info("JB-New paths collected into known paths")
 	// Clear new paths as we copied them.
 	dest.newPathList = make([]*Path, 0)
 	// Compute new best path
@@ -523,8 +524,8 @@ func (p paths) Less(i, j int) bool {
 
 	path1 := p[i]
 	path2 := p[j]
-
 	var better *Path
+	log.Info("JB-Comparing two paths",path1," and ",path2)
 	reason := BPR_UNKNOWN
 
 	// draft-uttaro-idr-bgp-persistence-02
@@ -537,42 +538,52 @@ func (p paths) Less(i, j int) bool {
 	if better == nil {
 		better = compareByReachableNexthop(path1, path2)
 		reason = BPR_REACHABLE_NEXT_HOP
+		log.Info("JB-Compare paths by reachable next hop. This was best:", better)
 	}
 	if better == nil {
 		better = compareByHighestWeight(path1, path2)
 		reason = BPR_HIGHEST_WEIGHT
+		log.Info("JB-Compare by highest weight. This was best: ",better)
 	}
 	if better == nil {
 		better = compareByLocalPref(path1, path2)
 		reason = BPR_LOCAL_PREF
+		log.Info("JB-Compare by local pref. This was best: ",better)
 	}
 	if better == nil {
 		better = compareByLocalOrigin(path1, path2)
 		reason = BPR_LOCAL_ORIGIN
+		log.Info("JB-Compare by local origin. This was best: ",better)
 	}
 	if better == nil {
 		better = compareByASPath(path1, path2)
 		reason = BPR_ASPATH
+		log.Info("JB-Compare by AS path. This was best: ",better)
 	}
 	if better == nil {
 		better = compareByOrigin(path1, path2)
 		reason = BPR_ORIGIN
+		log.Info("JB-Compare by origin. This was best: ",better)
 	}
 	if better == nil {
 		better = compareByMED(path1, path2)
 		reason = BPR_MED
+		log.Info("JB-Compare by MED. This was best: ",better)
 	}
 	if better == nil {
 		better = compareByASNumber(path1, path2)
 		reason = BPR_ASN
+		log.Info("JB-Compare by AS Number. This was best: ",better)
 	}
 	if better == nil {
 		better = compareByIGPCost(path1, path2)
 		reason = BPR_IGP_COST
+		log.Info("JB-Compare by IGP cost. This was best: ",better)
 	}
 	if better == nil {
 		better = compareByAge(path1, path2)
 		reason = BPR_OLDER
+		log.Info("JB-Compare by age. This was best: ",better)
 	}
 	if better == nil {
 		var e error = nil
@@ -584,13 +595,16 @@ func (p paths) Less(i, j int) bool {
 			}).Error("Could not get best path by comparing router ID")
 		}
 		reason = BPR_ROUTER_ID
+		log.Info("JB-Compare by router ID. This was best: ",better)
 	}
 	if better == nil {
 		reason = BPR_UNKNOWN
 		better = path1
+		log.Info("JB-Better was not set, better is now path1 ",better)
 	}
 
 	better.reason = reason
+	log.Info("JB-Reason: ",reason)
 
 	if better == path1 {
 		return true
